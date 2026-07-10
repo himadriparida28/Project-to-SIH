@@ -1,11 +1,18 @@
-from .models import Complaint, ComplaintImage
+from .models import Complaint, ComplaintImage, ComplaintStatus
 
 class ComplaintService:
 
     @staticmethod
     def create_complaint(*, user, validated_data):
+        # Resolve initial status for the new complaint
+        status, _ = ComplaintStatus.objects.get_or_create(
+            name="pending",
+            defaults={"order": 1, "description": "Awaiting review"}
+        )
+
         complaint = Complaint.objects.create(
             user=user,
+            status=status,
             **validated_data,
         )
 

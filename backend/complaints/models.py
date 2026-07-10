@@ -154,24 +154,24 @@ class Complaint(BaseModel):
         if not self.reference_number:
             year = timezone.now().year
 
-        last_complaint = (
-            Complaint.objects
-            .filter(reference_number__startswith=f"CMP-{year}")
-            .order_by("-id")
-            .first()
-        )
-
-        if last_complaint:
-            last_number = int(
-                last_complaint.reference_number.split("-")[-1]
+            last_complaint = (
+                Complaint.objects
+                .filter(reference_number__startswith=f"GC-{year}")
+                .order_by("-id")
+                .first()
             )
-            new_number = last_number + 1
-        else:
-            new_number = 1
 
-        self.reference_number = (
-            f"GC-{year}-{new_number:06d}"
-        )
+            if last_complaint:
+                last_number = int(
+                    last_complaint.reference_number.split("-")[-1]
+                )
+                new_number = last_number + 1
+            else:
+                new_number = 1
+
+            self.reference_number = (
+                f"GC-{year}-{new_number:06d}"
+            )
 
         super().save(*args, **kwargs)
     
@@ -260,4 +260,21 @@ class ComplaintStatusHistory(BaseModel):
         return (
             f"{self.complaint.reference_number} → "
             f"{self.new_status.name}"
+        )
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+@receiver(post_save, sender=Complaint)
+def create_complaint_notification(sender, instance, created, **kwargs):
+    if created:
+        from notifications.models import Notification
+        from notifications.choices import NotificationType
+        Notification.objects.create(
+            user=instance.user,
+            complaint=instance,
+            title="Complaint Filed Successfully",
+            message=f"Your complaint '{instance.title}' has been registered with reference number {instance.reference_number}.",
+            notification_type=NotificationType.COMPLAINT_CREATED,
+            action_url=f"/complaints/{instance.id}"
         )

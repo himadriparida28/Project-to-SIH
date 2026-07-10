@@ -5,11 +5,10 @@ from rest_framework.generics import GenericAPIView, ListAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from backend.complaints.filters import ComplaintFilter
-from backend.complaints.filters import ComplaintFilter
-from backend.complaints.permissions import IsComplaintOwner
+from .filters import ComplaintFilter
 
-from backend.complaints.permissions import IsComplaintOwner
+
+from .permissions import IsComplaintOwner
 
 from .models import Complaint
 from .serializers import (
