@@ -1,0 +1,55 @@
+from django.urls import path
+
+from .views import (
+    ComplaintCreateView,
+    ComplaintListView,
+    ComplaintDetailView,
+    ComplaintUpdateView,
+    ComplaintDeleteView,
+    ComplaintImageUploadView,
+    MyComplaintListView,
+)
+
+urlpatterns = [
+    path(
+        "",
+        ComplaintListView.as_view(),
+        name="complaint-list",
+    ),
+
+    path(
+        "create/",
+        ComplaintCreateView.as_view(),
+        name="complaint-create",
+    ),
+
+    path(
+        "my/",
+        MyComplaintListView.as_view(),
+        name="my-complaints",
+    ),
+
+    path(
+        "<int:pk>/",
+        ComplaintDetailView.as_view(),
+        name="complaint-detail",
+    ),
+
+    path(
+        "<int:pk>/update/",
+        ComplaintUpdateView.as_view(),
+        name="complaint-update",
+    ),
+
+    path(
+        "<int:pk>/delete/",
+        ComplaintDeleteView.as_view(),
+        name="complaint-delete",
+    ),
+
+    path(
+        "<int:pk>/upload-images/",
+        ComplaintImageUploadView.as_view(),
+        name="complaint-upload-images",
+    ),
+]
