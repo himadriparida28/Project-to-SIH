@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
-export default function RegisterNavbar() {
+export default function LoginNavbar() {
   return (
     <nav className="absolute top-0 left-0 right-0 z-50 h-16 flex items-center justify-between border-b border-amber-950/20 bg-gradient-to-r from-[#2d1b0d] via-[#1c0f05] to-[#2d1b0d] px-8 select-none">
       {/* Left (Logo and Brand Title Side-by-Side matching global Navbar.jsx exactly) */}
@@ -9,16 +9,11 @@ export default function RegisterNavbar() {
         <img
           src={logo}
           alt="Logo"
-          className="h-14 w-14 object-contain bg-white p-1.5 rounded-xl shadow-md border border-white/20"
+          className="h-10 w-10 object-contain bg-white p-1.5 rounded-xl shadow-md border border-white/20"
         />
-        <div className="flex flex-col">
-          <span className="text-[19px] font-black text-white tracking-wider leading-tight">
-            AAVEDAN-SETU
-          </span>
-          <span className="text-[9px] font-bold text-amber-200/70 leading-none mt-0.5">
-            Your Gateway to Smart Governance
-          </span>
-        </div>
+        <span className="text-[19px] font-extrabold text-white tracking-tight">
+          Aavedan Setu
+        </span>
       </Link>
 
       {/* Right (Login / Register buttons matching global Navbar guest buttons exactly) */}

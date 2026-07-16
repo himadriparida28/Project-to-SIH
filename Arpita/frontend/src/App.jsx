@@ -24,6 +24,7 @@ import Register from './pages/Register/Register.jsx';
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword.jsx';
 import ResetPassword from './pages/ResetPassword/ResetPassword.jsx';
 import NotFound from './pages/NotFound/NotFound.jsx';
+import NewsDetail from './pages/News/NewsDetail.jsx';
 
 /* ----- Protected Pages ----- */
 import Dashboard from './pages/Dashboard/Dashboard.jsx';
@@ -102,12 +103,16 @@ function App() {
         }
       />
       <Route
-        path="/login"
+        path="/news/:id"
         element={
           <PublicLayout>
-            <Login />
+            <NewsDetail />
           </PublicLayout>
         }
+      />
+      <Route
+        path="/login"
+        element={<Login />}
       />
       <Route
         path="/register"

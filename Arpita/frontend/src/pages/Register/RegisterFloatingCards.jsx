@@ -14,8 +14,8 @@ export default function RegisterFloatingCards() {
           w-[150px]
           rounded-xl
           shadow-xl
-          top-[70px]
-          left-[420px]
+          top-[90px]
+          left-[430px]
           animate-float1
         "
       />
@@ -26,7 +26,7 @@ export default function RegisterFloatingCards() {
         alt="Ration"
         className="
           absolute
-          w-[130px]
+          w-[150px]
           rounded-xl
           shadow-xl
           top-[170px]
@@ -41,11 +41,11 @@ export default function RegisterFloatingCards() {
         alt="Ayushman"
         className="
           absolute
-          w-[145px]
+          w-[150px]
           rounded-xl
           shadow-xl
-          top-[330px]
-          left-[440px]
+          top-[340px]
+          left-[450px]
           animate-float3
         "
       />

@@ -38,7 +38,7 @@ const actions = [
 
 export default function RegisterQuickActions({ onAIChatToggle }) {
   return (
-    <section className="absolute left-[40px] top-[340px] z-50">
+    <section className="absolute left-[40px] top-[410px] z-50">
       <div className="flex gap-10">
         {actions.map((item, index) => {
           const Icon = item.icon;
