@@ -59,10 +59,15 @@ export default function Footer() {
 
       {/* ── Bottom bar ──────────────────── */}
       <div className="border-t border-white/5">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-3 px-6 py-4 sm:flex-row">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 px-6 py-4 sm:flex-row">
           <p className="text-xs text-amber-200/30">
             &copy; {year} Aavedan-Setu. All rights reserved.
           </p>
+
+          {/* SIH badge */}
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-950/40 px-3 py-1 text-[11px] font-semibold text-amber-200/50 border border-amber-900/30">
+            🏆 Made for Smart India Hackathon
+          </span>
         </div>
       </div>
     </footer>

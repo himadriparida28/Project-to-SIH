@@ -8,11 +8,12 @@
  *              a smooth scroll anchor from Help Center to the contact footer, and a yellow contact footer.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
+import { Globe, Headphones, ChevronDown } from 'lucide-react';
 import {
   HiEnvelope,
   HiLockClosed,
@@ -27,9 +28,12 @@ import {
   HiGlobeAlt,
   HiChevronDown,
   HiArrowRight,
+  HiChatBubbleLeftRight,
 } from 'react-icons/hi2';
 
 import { useAuth } from '../../context/AuthContext';
+import * as authService from '../../services/authService';
+import RegisterNavbar from '../Register/RegisterNavbar';
 
 // Import newly uploaded image assets
 import cleanBg from '../../assets/clean_bg.jpg';
@@ -84,28 +88,78 @@ const SCHEME_ITEMS = [
   },
 ];
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const PHONE_REGEX = /^(?:\+91)?[6-9]\d{9}$/;
+
 export default function Login() {
   const navigate = useNavigate();
-  const { login, isAuthenticated, loading: authLoading } = useAuth();
+  const { login, loginWithOTP, isAuthenticated, loading: authLoading } = useAuth();
 
+  const [loginType, setLoginType] = useState('password'); // 'password' or 'otp'
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [schemeIndex, setSchemeIndex] = useState(0);
 
+  // OTP States
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpSending, setOtpSending] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
   // Language Dropdown states
   const [selectedLang, setSelectedLang] = useState('English');
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const languages = [
+    { code: "en", label: "English", display: "English" },
+    { code: "hi", label: "Hindi (हिन्दी)", display: "Hindi" },
+    { code: "or", label: "Odia (ଓଡ଼ିଆ)", display: "Odia" },
+  ];
+
+  // Close language dropdown on clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsLangDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleHelpClick = () => {
+    const contactFooter = document.getElementById('contact-footer');
+    if (contactFooter) {
+      contactFooter.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const {
     register: loginRegister,
     handleSubmit: handleLoginSubmit,
+    watch: loginWatch,
+    trigger: loginTrigger,
     formState: { errors: loginErrors },
   } = useForm({
     defaultValues: {
       identifier: '',
       password: '',
+      phone: '',
+      otp: '',
     },
   });
+
+  const phoneValue = loginWatch('phone');
+
+  /* ── Cooldown timer ── */
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldown]);
 
   /* ── Redirect if already authenticated ── */
   useEffect(() => {
@@ -114,18 +168,52 @@ export default function Login() {
     }
   }, [isAuthenticated, navigate]);
 
+  /* ── Trigger OTP sending ── */
+  const sendVerificationOTP = async () => {
+    const isPhoneValid = await loginTrigger('phone');
+    if (!isPhoneValid) return;
+
+    setOtpSending(true);
+    try {
+      const res = await authService.sendOTP({ phone: phoneValue });
+      setOtpSent(true);
+      setCooldown(60);
+      toast.success(res.message || 'OTP sent successfully!');
+    } catch (error) {
+      const message =
+        error?.response?.data?.phone?.[0] ||
+        error?.response?.data?.message ||
+        'Failed to send OTP. Ensure phone number is registered.';
+      toast.error(message);
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
   /* ── Login Form submission ── */
   const onLoginSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      await login({
-        identifier: data.identifier.trim(),
-        password: data.password,
-      });
+      if (loginType === 'password') {
+        await login({
+          identifier: data.identifier.trim(),
+          password: data.password,
+        });
+      } else {
+        await loginWithOTP({
+          phone: data.phone.trim(),
+          otp: data.otp.trim(),
+        });
+      }
       toast.success('Welcome back! Redirecting to dashboard…');
       navigate('/dashboard', { replace: true });
     } catch (error) {
-      console.error('Login error:', error);
+      const message =
+        error?.response?.data?.detail ||
+        error?.response?.data?.non_field_errors?.[0] ||
+        error?.response?.data?.message ||
+        'Authentication failed. Please check details.';
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -184,94 +272,79 @@ export default function Login() {
           backgroundRepeat: 'no-repeat',
         }}
       >
-        {/* ── CHANGE 2: Animated Glow ── */}
+        {/* ── Animated Glow ── */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
           <div className="absolute w-[600px] h-[600px] rounded-full bg-white/30 blur-[170px] left-[-200px] top-[-150px]" />
           <div className="absolute w-[450px] h-[450px] rounded-full bg-yellow-200/40 blur-[130px] right-[-100px] bottom-[-100px]" />
-          <div className="absolute w-[350px] h-[350px] rounded-full bg-orange-200/30 blur-[120px] top-[35%] left-[45%]" />
         </div>
 
-        {/* ── CHANGE 3: Header ── */}
-        <header className="relative z-50 px-10 py-5 bg-gradient-to-r from-[#2d1b0d] via-[#1c0f05] to-[#2d1b0d] border-b border-amber-950/20 shadow-md">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <img
-                src="/logo.png"
-                className="w-14 h-14 object-contain bg-white p-1.5 rounded-xl shadow-md border border-white/20"
-                alt="Aavedan Setu Brand Logo"
+        <RegisterNavbar />
+
+        {/* Floating Actions on Yellow background (aligned under Navbar.jsx at top-right corner) */}
+        <div className="absolute top-[80px] right-10 z-30 flex items-center gap-6 pointer-events-auto select-none">
+          {/* Language Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setIsLangDropdownOpen((prev) => !prev)}
+              className="flex items-center gap-2 text-[#0B1D48] hover:opacity-85 transition-opacity cursor-pointer bg-transparent border-0 outline-none font-bold text-[15px]"
+            >
+              <Globe size={18} className="text-sky-500" />
+              <span>{selectedLang}</span>
+              <ChevronDown
+                size={14}
+                className={`text-[#0B1D48] transition-transform duration-200 ${
+                  isLangDropdownOpen ? "rotate-180" : ""
+                }`}
               />
-              <div>
-                <h1 className="text-3xl font-black text-white tracking-wider">
-                  AAVEDAN-SETU
-                </h1>
-                <p className="text-sm text-amber-200/70 font-bold">
-                  Your Gateway to Smart Governance
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-8 items-center text-sm">
-              
-              {/* Language Selector Dropdown (English, Hindi, Odia) */}
-              <div className="relative z-50">
-                <button
-                  type="button"
-                  onClick={() => setIsLangDropdownOpen((prev) => !prev)}
-                  className="font-bold hover:text-white cursor-pointer flex items-center gap-1.5 text-amber-200/80 focus:outline-none"
-                >
-                  🌐 {selectedLang} <HiChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isLangDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
+            </button>
 
-                <AnimatePresence>
-                  {isLangDropdownOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 8 }}
-                      className="absolute right-0 mt-2.5 w-32 bg-white/90 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-xl overflow-hidden z-50 py-1"
-                    >
-                      {['English', 'Hindi', 'Odia'].map((lang) => (
-                        <button
-                          key={lang}
-                          type="button"
-                          onClick={() => {
-                            setSelectedLang(lang);
-                            setIsLangDropdownOpen(false);
-                            toast.success(`Language switched to ${lang}!`);
-                          }}
-                          className={`w-full text-left px-4 py-2 text-xs font-bold text-slate-700 hover:bg-violet-50 hover:text-violet-600 transition-colors ${selectedLang === lang ? 'bg-violet-50/50 text-violet-600' : ''}`}
-                        >
-                          {lang}
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+            {isLangDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-44 rounded-xl border border-slate-200 bg-white py-1 shadow-xl z-50 transition-all">
+                {languages.map((lang) => (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => {
+                      setSelectedLang(lang.display);
+                      setIsLangDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2.5 text-[14px] font-bold transition-colors flex justify-between items-center cursor-pointer ${
+                      selectedLang === lang.display
+                        ? "text-amber-800 bg-amber-50"
+                        : "text-slate-700 hover:bg-amber-50 hover:text-amber-800"
+                    }`}
+                  >
+                    <span>{lang.label}</span>
+                  </button>
+                ))}
               </div>
-
-              {/* Help Center Smooth Scroll Anchor */}
-              <button
-                type="button"
-                onClick={handleHelpCenterClick}
-                className="font-bold hover:text-white cursor-pointer flex items-center gap-1.5 text-amber-200/80 focus:outline-none"
-              >
-                🎧 Help Center
-              </button>
-            </div>
+            )}
           </div>
-        </header>
+
+          {/* Help Center Smooth Scroll Anchor */}
+          <button
+            type="button"
+            onClick={handleHelpClick}
+            className="flex items-center gap-2 text-[#0B1D48] hover:opacity-85 transition-opacity cursor-pointer bg-transparent border-0 outline-none font-bold text-[15px]"
+          >
+            <Headphones size={18} className="text-slate-400" />
+            Help Center
+          </button>
+        </div>
 
         {/* ── MAIN CONTENT GRID ── */}
-        <main className="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 pl-6 pr-6 md:pl-12 md:pr-6 lg:pr-0 items-center max-w-[1440px] mx-auto w-full">
+        <main className="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 pl-6 pr-6 md:pl-12 md:pr-6 lg:pr-0 items-center max-w-[1440px] mx-auto w-full pt-24 lg:pt-28">
           
           {/* COLUMN 1: Titles & Actions (Left 5 Columns) */}
-          <div className="hidden lg:flex lg:col-span-5 flex-col gap-6 items-start relative h-auto">
+          <div className="hidden lg:flex lg:col-span-5 flex-col gap-6 items-start relative h-auto lg:-translate-y-20">
             
             {/* Titles & Paragraph (Enlarged Fonts) */}
             <div className="flex flex-col">
               <span className="text-xl font-bold text-[#E11D48] tracking-wide select-none">
                 Smart Services.
               </span>
-              <h1 className="text-7xl font-black tracking-tight leading-[1.05] text-slate-900 mt-1 select-none">
+              <h1 className="text-[38px] font-black tracking-tight leading-[1.1] text-slate-900 mt-1 select-none">
                 <span className="text-[#991B1B]">Strong India.</span>
                 <br />
                 <span className="text-[#0F172A]">AI-Powered</span>
@@ -470,7 +543,7 @@ export default function Login() {
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            className="w-full lg:col-span-4 flex justify-center lg:justify-end py-2 relative z-10 h-full items-start mt-8 lg:mr-[-80px]"
+            className="w-full lg:col-span-4 flex justify-center lg:justify-end py-2 relative z-10 h-full items-start mt-16 lg:mr-0 lg:-translate-x-12"
           >
             <div className="bg-white/70 backdrop-blur-3xl rounded-[34px] border border-white/70 shadow-[0_40px_80px_rgba(0,0,0,.12)] p-8 md:py-8 md:px-10 w-full max-w-[430px] flex flex-col gap-6">
               
@@ -484,11 +557,30 @@ export default function Login() {
                 </p>
               </div>
 
-              {/* Simple Tab Header for visual consistency */}
+              {/* Login Type Tabs */}
               <div className="flex border-b border-slate-100 text-sm font-extrabold select-none">
-                <span className="pb-2.5 px-4 text-violet-600 border-b-2 border-violet-600 cursor-default text-[15px]">
-                  Login
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setLoginType('password')}
+                  className={`pb-2.5 px-4 transition-all border-b-2 text-[15px] cursor-pointer ${
+                    loginType === 'password'
+                      ? 'text-violet-600 border-violet-600'
+                      : 'text-slate-400 border-transparent hover:text-slate-600'
+                  }`}
+                >
+                  Password
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLoginType('otp')}
+                  className={`pb-2.5 px-4 transition-all border-b-2 text-[15px] cursor-pointer ${
+                    loginType === 'otp'
+                      ? 'text-violet-600 border-violet-600'
+                      : 'text-slate-400 border-transparent hover:text-slate-600'
+                  }`}
+                >
+                  OTP Login
+                </button>
               </div>
 
               {/* LOGIN FORM */}
@@ -497,84 +589,172 @@ export default function Login() {
                 className="flex flex-col gap-5"
                 noValidate
               >
-                {/* Email / Phone Field */}
-                <div className="flex flex-col">
-                  <label htmlFor="identifier" className="text-xs font-bold text-slate-600 mb-1.5">
-                    Email / Phone Number
-                  </label>
-                  <div className="relative">
-                    <HiEnvelope className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
-                    <input
-                      id="identifier"
-                      type="text"
-                      placeholder="Enter your email or phone number"
-                      className={`w-full py-4 pl-10 pr-4 text-[15px] bg-white border ${loginErrors.identifier ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'} rounded-2xl outline-none focus:ring-4 transition-all text-slate-800 font-medium`}
-                      {...loginRegister('identifier', {
-                        required: 'Email address or Phone number is required',
-                        validate: (value) => {
-                          const trimmed = value.trim();
-                          const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                          const PHONE_REGEX = /^(?:\+91)?[6-9]\d{9}$/;
-                          if (!EMAIL_REGEX.test(trimmed) && !PHONE_REGEX.test(trimmed)) {
-                            return 'Enter a valid email address or 10-digit Indian phone number';
-                          }
-                          return true;
-                        },
-                      })}
-                    />
-                  </div>
-                  {loginErrors.identifier && (
-                    <p className="text-[10px] text-red-500 font-bold mt-1 pl-1">
-                      {loginErrors.identifier.message}
-                    </p>
-                  )}
-                </div>
+                {loginType === 'password' ? (
+                  <>
+                    {/* Email / Phone Field */}
+                    <div className="flex flex-col">
+                      <label htmlFor="identifier" className="text-xs font-bold text-slate-600 mb-1.5">
+                        Email / Phone Number
+                      </label>
+                      <div className="relative">
+                        <HiEnvelope className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
+                        <input
+                          id="identifier"
+                          type="text"
+                          placeholder="Enter your email or phone number"
+                          className={`w-full py-4 pl-10 pr-4 text-[15px] bg-white border ${loginErrors.identifier ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'} rounded-2xl outline-none focus:ring-4 transition-all text-slate-800 font-medium`}
+                          {...loginRegister('identifier', {
+                            required: 'Email address or Phone number is required',
+                            validate: (value) => {
+                              const trimmed = value.trim();
+                              if (!EMAIL_REGEX.test(trimmed) && !PHONE_REGEX.test(trimmed)) {
+                                return 'Enter a valid email address or 10-digit Indian phone number';
+                              }
+                              return true;
+                            },
+                          })}
+                        />
+                      </div>
+                      {loginErrors.identifier && (
+                        <p className="text-[10px] text-red-500 font-bold mt-1 pl-1">
+                          {loginErrors.identifier.message}
+                        </p>
+                      )}
+                    </div>
 
-                {/* Password Field */}
-                <div className="flex flex-col">
-                  <label htmlFor="password" className="text-xs font-bold text-slate-600 mb-1.5">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <HiLockClosed className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
-                    <input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                      autoComplete="current-password"
-                      className={`w-full py-4 pl-10 pr-10 text-[15px] bg-white border ${loginErrors.password ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'} rounded-2xl outline-none focus:ring-4 transition-all text-slate-800 font-medium`}
-                      {...loginRegister('password', { required: 'Password is required' })}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showPassword ? <HiEyeSlash className="w-4.5 h-4.5" /> : <HiEye className="w-4.5 h-4.5" />}
-                    </button>
-                  </div>
-                  {loginErrors.password && (
-                    <p className="text-[10px] text-red-500 font-bold mt-1 pl-1">
-                      {loginErrors.password.message}
-                    </p>
-                  )}
+                    {/* Password Field */}
+                    <div className="flex flex-col">
+                      <label htmlFor="password" className="text-xs font-bold text-slate-600 mb-1.5">
+                        Password
+                      </label>
+                      <div className="relative">
+                        <HiLockClosed className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
+                        <input
+                          id="password"
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Enter your password"
+                          autoComplete="current-password"
+                          className={`w-full py-4 pl-10 pr-10 text-[15px] bg-white border ${loginErrors.password ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'} rounded-2xl outline-none focus:ring-4 transition-all text-slate-800 font-medium`}
+                          {...loginRegister('password', { required: 'Password is required' })}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showPassword ? <HiEyeSlash className="w-4.5 h-4.5" /> : <HiEye className="w-4.5 h-4.5" />}
+                        </button>
+                      </div>
+                      {loginErrors.password && (
+                        <p className="text-[10px] text-red-500 font-bold mt-1 pl-1">
+                          {loginErrors.password.message}
+                        </p>
+                      )}
 
-                  {/* Forgot Password Link */}
-                  <div className="flex justify-end mt-2">
-                    <Link
-                      to="/forgot-password"
-                      className="text-xs font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-colors"
-                    >
-                      Forgot Password?
-                    </Link>
-                  </div>
-                </div>
+                      {/* Forgot Password Link */}
+                      <div className="flex justify-end mt-2">
+                        <Link
+                          to="/forgot-password"
+                          className="text-xs font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-colors"
+                        >
+                          Forgot Password?
+                        </Link>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Phone number */}
+                    <div className="flex flex-col">
+                      <label htmlFor="phone" className="text-xs font-bold text-slate-600 mb-1.5">
+                        Phone Number
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <HiPhone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
+                          <input
+                            id="phone"
+                            type="tel"
+                            placeholder="Enter 10-digit number"
+                            className={`w-full py-4 pl-10 pr-4 text-[15px] bg-white border ${loginErrors.phone ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'} rounded-2xl outline-none focus:ring-4 transition-all text-slate-800 font-medium`}
+                            disabled={otpSent}
+                            {...loginRegister('phone', {
+                              required: 'Phone number is required for OTP login',
+                              pattern: {
+                                value: PHONE_REGEX,
+                                message: 'Please enter a valid 10-digit Indian phone number',
+                              },
+                            })}
+                          />
+                        </div>
+                        {!otpSent && (
+                          <button
+                            type="button"
+                            onClick={sendVerificationOTP}
+                            disabled={otpSending || cooldown > 0}
+                            className="px-4 py-4 rounded-2xl border border-violet-600 text-violet-600 hover:bg-violet-600 hover:text-white transition-all font-bold text-xs whitespace-nowrap cursor-pointer disabled:opacity-50"
+                          >
+                            {otpSending ? 'Sending…' : cooldown > 0 ? `Resend (${cooldown}s)` : 'Send OTP'}
+                          </button>
+                        )}
+                      </div>
+                      {loginErrors.phone && (
+                        <p className="text-[10px] text-red-500 font-bold mt-1 pl-1">
+                          {loginErrors.phone.message}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* OTP code */}
+                    {otpSent && (
+                      <div className="flex flex-col">
+                        <label htmlFor="otp" className="text-xs font-bold text-slate-600 mb-1.5">
+                          Verification Code (OTP)
+                        </label>
+                        <div className="relative">
+                          <HiChatBubbleLeftRight className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
+                          <input
+                            id="otp"
+                            type="text"
+                            placeholder="Enter 6-digit code"
+                            maxLength={6}
+                            className={`w-full py-4 pl-10 pr-4 text-[15px] bg-white border ${loginErrors.otp ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'} rounded-2xl outline-none focus:ring-4 transition-all text-slate-800 font-medium`}
+                            {...loginRegister('otp', {
+                              required: 'OTP is required',
+                              pattern: {
+                                value: /^\d{6}$/,
+                                message: 'OTP must be a 6-digit number',
+                              },
+                            })}
+                          />
+                        </div>
+                        {loginErrors.otp && (
+                          <p className="text-[10px] text-red-500 font-bold mt-1 pl-1">
+                            {loginErrors.otp.message}
+                          </p>
+                        )}
+
+                        <div className="flex items-center justify-between mt-3 text-xs font-bold">
+                          <span className="text-[10px] text-slate-400">OTP Sent successfully</span>
+                          <button
+                            type="button"
+                            onClick={sendVerificationOTP}
+                            disabled={otpSending || cooldown > 0}
+                            className="text-violet-600 hover:text-violet-700 disabled:opacity-50 cursor-pointer"
+                          >
+                            {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend OTP'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
 
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || (loginType === 'otp' && !otpSent)}
                   style={{
                     background: "linear-gradient(135deg,#6D28D9,#9333EA,#7C3AED)"
                   }}
@@ -586,7 +766,7 @@ export default function Login() {
                       <span>Verifying…</span>
                     </>
                   ) : (
-                    <span>Login</span>
+                    <span>{loginType === 'password' ? 'Login' : 'Verify & Login'}</span>
                   )}
                 </button>
               </form>
