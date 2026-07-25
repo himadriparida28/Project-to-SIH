@@ -96,7 +96,7 @@ export default function Navbar() {
       <header className="sticky top-0 z-50 h-16 border-b border-amber-950/20 bg-gradient-to-r from-[#2d1b0d] via-[#1c0f05] to-[#2d1b0d] backdrop-blur-lg">
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6">
           {/* ── Left: Logo ─────────────────────────────────── */}
-          <Link to="/" className="flex items-center gap-3 select-none py-1.5">
+          <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center gap-3 select-none py-1.5">
             <img src={logo} alt="Logo" className="h-10 w-10 object-contain bg-white p-1.5 rounded-xl shadow-md border border-white/20" />
             <span className="text-[19px] font-extrabold text-white tracking-tight">
               Aavedan Setu
