@@ -13,7 +13,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { Globe, Headphones, ChevronDown } from 'lucide-react';
+import { Globe, Headphones, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   HiEnvelope,
   HiLockClosed,
@@ -34,6 +34,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import * as authService from '../../services/authService';
 import RegisterNavbar from '../Register/RegisterNavbar';
+import RegisterFooter from '../Register/RegisterFooter';
 
 // Import newly uploaded image assets
 import cleanBg from '../../assets/clean_bg.jpg';
@@ -130,7 +131,7 @@ export default function Login() {
   }, []);
 
   const handleHelpClick = () => {
-    const contactFooter = document.getElementById('contact-footer');
+    const contactFooter = document.getElementById('register-footer');
     if (contactFooter) {
       contactFooter.scrollIntoView({ behavior: 'smooth' });
     }
@@ -226,16 +227,20 @@ export default function Login() {
 
   /* ── Scheme slider handlers ── */
   const handlePrevScheme = () => {
-    setSchemeIndex((prev) => (prev === 0 ? SCHEME_ITEMS.length - 1 : prev - 1));
+    if (schemeIndex > 0) {
+      setSchemeIndex((prev) => prev - 1);
+    }
   };
 
   const handleNextScheme = () => {
-    setSchemeIndex((prev) => (prev === SCHEME_ITEMS.length - 1 ? 0 : prev + 1));
+    if (schemeIndex < SCHEME_ITEMS.length - 2) {
+      setSchemeIndex((prev) => prev + 1);
+    }
   };
 
   /* ── Smooth Scroll to Footer Contacts ── */
   const handleHelpCenterClick = () => {
-    const contactFooter = document.getElementById('contact-footer');
+    const contactFooter = document.getElementById('register-footer');
     if (contactFooter) {
       contactFooter.scrollIntoView({ behavior: 'smooth' });
       toast.info('Scrolling to support contact information…');
@@ -410,83 +415,89 @@ export default function Login() {
 
             </div>
 
-            {/* Latest Schemes Section (Renamed & Zoomed-In) */}
-            <div className="flex flex-col gap-3.5 max-w-[440px] w-full select-none mt-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-black text-slate-800 tracking-wide">Latest Schemes</span>
-                <div className="flex items-center gap-1.5">
+            {/* Latest Schemes Section (Matching Signup Layout & Design) */}
+            <div className="flex gap-4 items-start max-w-[440px] w-full select-none mt-6">
+              
+              {/* Left Column (Title and Slider Buttons) */}
+              <div className="w-[110px] flex-shrink-0">
+                <h2 className="text-[#8c2323] text-2xl font-bold">Latest</h2>
+                <h2 className="text-[#14295d] text-2xl font-black leading-none">Schemes</h2>
+                <div className="flex gap-2 mt-4 select-none">
+                  {/* Left Arrow Button */}
                   <button
                     type="button"
                     onClick={handlePrevScheme}
-                    className="w-7 h-7 rounded-full bg-white/60 border border-white/20 text-slate-700 flex items-center justify-center shadow-sm cursor-pointer hover:bg-white transition-colors"
+                    disabled={schemeIndex === 0}
+                    className={`w-8 h-8 rounded-full shadow-md flex items-center justify-center transition-all ${
+                      schemeIndex === 0
+                        ? "bg-white text-gray-300 cursor-not-allowed opacity-50 border border-slate-100"
+                        : "bg-white text-[#14295d] hover:bg-gray-50 hover:scale-110 active:scale-95 cursor-pointer border border-slate-200"
+                    }`}
+                    aria-label="Previous schemes"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
+                    <ChevronLeft size={16} />
                   </button>
+
+                  {/* Right Arrow Button */}
                   <button
                     type="button"
                     onClick={handleNextScheme}
-                    className="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-sm cursor-pointer hover:bg-indigo-700 transition-colors"
+                    disabled={schemeIndex >= SCHEME_ITEMS.length - 2}
+                    className={`w-8 h-8 rounded-full shadow-md flex items-center justify-center transition-all ${
+                      schemeIndex >= SCHEME_ITEMS.length - 2
+                        ? "bg-purple-300 text-white cursor-not-allowed opacity-50"
+                        : "bg-purple-600 text-white hover:bg-purple-700 hover:scale-110 active:scale-95 cursor-pointer"
+                    }`}
+                    aria-label="Next schemes"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
+                    <ChevronRight size={16} />
                   </button>
                 </div>
               </div>
 
-              {/* Slide list wrapper (Zoomed min-height) */}
-              <div className="w-full min-h-[110px] relative overflow-hidden">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={schemeIndex}
-                    initial={{ opacity: 0, x: 15 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -15 }}
-                    transition={{ duration: 0.2 }}
-                    className="grid grid-cols-3 gap-3 w-full"
-                  >
-                    {SCHEME_ITEMS.map((item, idx) => {
-                      const actualIdx = (schemeIndex + idx) % SCHEME_ITEMS.length;
-                      const displayItem = SCHEME_ITEMS[actualIdx];
-
-                      return (
-                        <div
-                          key={actualIdx}
-                          className="bg-white/85 rounded-2xl border border-white/60 p-3.5 flex flex-col justify-between shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-2"
-                        >
-                          <div className="flex gap-2 items-center">
-                            {/* Circular thumbnail representation */}
-                            <div className={`w-9 h-9 rounded-full ${displayItem.iconColor} flex items-center justify-center shrink-0 shadow-sm border border-white`}>
-                              {displayItem.svgIcon}
-                            </div>
-                            <div className="flex flex-col min-w-0">
-                              <span className="text-[11px] font-black text-slate-800 truncate leading-tight">
-                                {displayItem.title}
-                              </span>
-                              <span className="text-[9px] font-bold text-slate-400 mt-0.5 leading-none">
-                                {displayItem.date}
-                              </span>
-                            </div>
+              {/* Cards Slider Wrapper */}
+              <div className="w-[310px] overflow-hidden">
+                <motion.div
+                  className="flex gap-2 py-1"
+                  animate={{ x: -schemeIndex * 153 }}
+                  transition={{ type: "spring", stiffness: 220, damping: 26 }}
+                >
+                  {SCHEME_ITEMS.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="w-[145px] bg-white/50 backdrop-blur-md rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 p-4 flex flex-col justify-between h-[210px] flex-shrink-0"
+                    >
+                      <div>
+                        <div className="flex items-start gap-1.5">
+                          <div className={`w-8 h-8 rounded-full ${item.iconColor} flex items-center justify-center shrink-0 border border-white shadow-sm`}>
+                            {item.svgIcon}
                           </div>
-                          <p className="text-[10px] text-slate-500 font-semibold leading-normal mt-2 line-clamp-2">
-                            {displayItem.desc}
-                          </p>
-                          <div className="flex justify-end mt-2">
-                            <Link
-                              to="/schemes"
-                              className="text-[9.5px] font-extrabold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-0.5"
-                            >
-                              Read More <HiArrowRight className="w-2.5 h-2.5" />
-                            </Link>
+                          <div className="min-w-0">
+                            <h3 className="font-semibold text-[11px] text-[#1c2957] truncate w-[80px]" title={item.title}>
+                              {item.title}
+                            </h3>
+                            <p className="text-[8px] text-gray-500 mt-0.5">
+                              {item.date}
+                            </p>
                           </div>
                         </div>
-                      );
-                    })}
-                  </motion.div>
-                </AnimatePresence>
+
+                        <p className="mt-2 text-[10px] text-[#334155] leading-normal line-clamp-4 font-medium">
+                          {item.desc}
+                        </p>
+                      </div>
+
+                      <Link
+                        to="/schemes"
+                        className="mt-2 text-purple-600 font-bold text-[11px] hover:text-purple-800 transition flex items-center gap-1 self-start cursor-pointer"
+                      >
+                        Read More →
+                      </Link>
+                    </div>
+                  ))}
+                </motion.div>
               </div>
+
             </div>
 
           </div>
@@ -579,7 +590,7 @@ export default function Login() {
                       : 'text-slate-400 border-transparent hover:text-slate-600'
                   }`}
                 >
-                  OTP Login
+                  {"Login with OTP"}
                 </button>
               </div>
 
@@ -823,56 +834,7 @@ export default function Login() {
         </main>
       </div>
 
-      {/* ── CLEAN SCROLLABLE GOVERNMENT FOOTER PANEL (Revealed when scrolling down) ── */}
-      <footer id="contact-footer" className="w-full bg-[#FFE68A] text-[#1E293B] px-12 py-10 border-t border-amber-300/40 relative z-20">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-          
-          {/* Left Block */}
-          <div className="flex flex-col gap-3.5">
-            <div className="flex items-center gap-3 select-none">
-              <img src="/logo.png" className="w-8" alt="Aavedan Setu Logo" />
-              <div className="flex flex-col">
-                <span className="text-xl font-black tracking-wider text-slate-800 leading-none">
-                  AAVEDAN-SETU
-                </span>
-                <span className="text-[9px] font-bold text-slate-500 mt-0.5">
-                  Your Gateway to Smart Governance
-                </span>
-              </div>
-            </div>
-            <p className="text-xs font-semibold leading-relaxed text-slate-600 max-w-md">
-              A unified government complaint management and scheme discovery platform.
-              Empowering citizens to engage with public services efficiently and transparently.
-            </p>
-          </div>
-
-          {/* Right Block */}
-          <div className="flex flex-col gap-3 md:items-end">
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-black tracking-widest text-slate-800 uppercase">
-                CONTACT
-              </span>
-              <div className="flex flex-col gap-1.5 text-xs font-semibold text-slate-600">
-                <a href="mailto:support@govconnect.gov.in" className="hover:text-indigo-600 transition-colors flex items-center gap-1.5">
-                  📧 support@govconnect.gov.in
-                </a>
-                <span className="flex items-center gap-1.5">
-                  📞 1800-111-555 (Toll Free)
-                </span>
-                <span className="flex items-center gap-1.5">
-                  🏢 Ministry of Electronics & IT, New Delhi, India
-                </span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="max-w-7xl mx-auto border-t border-slate-950/5 mt-8 pt-4 text-center text-[10px] font-bold text-slate-500">
-          © 2026 Aavedan-Setu. All rights reserved.
-        </div>
-      </footer>
+      <RegisterFooter />
 
     </div>
   );
