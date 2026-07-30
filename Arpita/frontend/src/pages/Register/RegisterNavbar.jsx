@@ -25,7 +25,7 @@ export default function RegisterNavbar() {
       <div className="flex items-center gap-2">
         <Link 
           to="/login" 
-          className="px-4 py-2 text-[15px] font-bold text-amber-200/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
+          className="px-5 py-2 text-[15px] bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold rounded-xl shadow-md hover:scale-[1.02] transition-all cursor-pointer"
         >
           Login
         </Link>
