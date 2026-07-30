@@ -605,7 +605,7 @@ export default function Landing() {
       {/* ─────────────────── FOOTER ─────────────────── */}
       <footer className="py-8 bg-[#1c0f05] text-center border-t border-amber-950/20">
         <p className="text-amber-200/30 text-sm">
-          © {new Date().getFullYear()} Government Complaint & Schemes Platform. Built for Smart India Hackathon.
+          © {new Date().getFullYear()} Government Complaint & Schemes Platform. 
         </p>
       </footer>
     </div>

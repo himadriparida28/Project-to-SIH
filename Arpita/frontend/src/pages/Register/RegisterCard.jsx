@@ -65,273 +65,164 @@ export default function RegisterCard() {
   };
 
   return (
-    <div className="w-[430px] h-[90vh] ml-12">
-      <div
-        className="
-          h-full
-          overflow-y-auto
-          rounded-[28px]
-          bg-white/75
-          backdrop-blur-3xl
-          border
-          border-white/80
-          shadow-[0_20px_60px_rgba(93,63,211,0.18)]
-          px-6
-          py-6
-        "
-      >
+    <div className="w-[380px] h-[90vh]">
+      <div className="h-full overflow-y-auto rounded-[34px] bg-white/70 backdrop-blur-3xl border border-white/70 shadow-[0_40px_80px_rgba(0,0,0,.12)] px-8 py-8 flex flex-col gap-5">
         {/* Heading */}
-        <h1 className="text-[42px] font-bold text-[#081A4B] leading-none">
-          Welcome!
-        </h1>
-        <p className="text-slate-600 text-[18px] mt-2">
-          Create your Aavedan-Setu account
-        </p>
+        <div className="flex flex-col select-none">
+          <h2 className="text-3xl font-black text-slate-800 flex items-center gap-2">
+            Welcome! 👋
+          </h2>
+          <p className="text-xs text-slate-400 font-bold mt-1.5">
+            Create your Aavedan-Setu account to access all government services.
+          </p>
+        </div>
 
-        {/* Tabs */}
-        <div className="flex mt-6 border-b border-gray-200">
-          <button className="flex-1 pb-3 border-b-[3px] border-violet-600 text-violet-700 font-semibold text-lg">
+        {/* Tab Header */}
+        <div className="flex border-b border-slate-100 text-sm font-extrabold select-none">
+          <span className="pb-2.5 px-4 text-violet-600 border-b-2 border-violet-600 cursor-default text-[15px]">
             Register
-          </button>
+          </span>
           <button
             type="button"
             onClick={() => navigate("/login")}
-            className="flex-1 pb-3 text-gray-500 text-lg hover:text-violet-700 transition"
+            className="pb-2.5 px-4 text-slate-400 hover:text-violet-600 transition text-[15px] cursor-pointer"
           >
             Login
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4" noValidate>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5" noValidate>
           {/* Full Name */}
-          <div>
-            <label className="block mb-2 font-semibold text-[#1F2A44] text-[15px]">
+          <div className="flex flex-col">
+            <label htmlFor="fullName" className="text-xs font-bold text-slate-600 mb-1.5">
               Full Name
             </label>
             <div className="relative">
-              <User
-                size={19}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-              />
+              <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 id="fullName"
                 type="text"
                 placeholder="Enter your full name"
                 autoComplete="name"
-                className={`
-                  w-full
-                  h-11
-                  rounded-xl
-                  border
-                  bg-white/90
-                  pl-11
-                  pr-4
-                  text-[15px]
-                  placeholder:text-gray-400
-                  outline-none
-                  focus:ring-4
-                  focus:ring-purple-200
-                  focus:border-purple-500
-                  transition
-                  ${errors.fullName ? "border-red-400 focus:ring-red-100 focus:border-red-500" : "border-gray-200"}
-                `}
+                className={`w-full py-4 pl-10 pr-4 text-[15px] bg-white border ${
+                  errors.fullName ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
+                } rounded-2xl outline-none focus:ring-4 transition-all text-slate-800 font-medium`}
                 {...register("fullName", nameRules)}
               />
             </div>
             {errors.fullName && (
-              <p className="text-red-500 text-xs mt-1 pl-1">
-                {errors.fullName.message}
-              </p>
+              <p className="text-[10px] text-red-500 font-bold mt-1 pl-1">{errors.fullName.message}</p>
             )}
           </div>
 
           {/* Email */}
-          <div>
-            <label className="block mb-2 font-semibold text-[#1F2A44] text-[15px]">
+          <div className="flex flex-col">
+            <label htmlFor="email" className="text-xs font-bold text-slate-600 mb-1.5">
               Email
             </label>
             <div className="relative">
-              <Mail
-                size={19}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-              />
+              <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 id="email"
                 type="email"
                 placeholder="example@abc.com"
                 autoComplete="email"
-                className={`
-                  w-full
-                  h-11
-                  rounded-xl
-                  border
-                  bg-white/90
-                  pl-11
-                  pr-4
-                  text-[15px]
-                  placeholder:text-gray-400
-                  outline-none
-                  focus:ring-4
-                  focus:ring-purple-200
-                  focus:border-purple-500
-                  transition
-                  ${errors.email ? "border-red-400 focus:ring-red-100 focus:border-red-500" : "border-gray-200"}
-                `}
+                className={`w-full py-4 pl-10 pr-4 text-[15px] bg-white border ${
+                  errors.email ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
+                } rounded-2xl outline-none focus:ring-4 transition-all text-slate-800 font-medium`}
                 {...register("email", emailRules)}
               />
             </div>
             {errors.email && (
-              <p className="text-red-500 text-xs mt-1 pl-1">
-                {errors.email.message}
-              </p>
+              <p className="text-[10px] text-red-500 font-bold mt-1 pl-1">{errors.email.message}</p>
             )}
           </div>
 
           {/* Phone */}
-          <div>
-            <label className="block mb-2 font-semibold text-[#1F2A44] text-[15px]">
+          <div className="flex flex-col">
+            <label htmlFor="phone" className="text-xs font-bold text-slate-600 mb-1.5">
               Phone Number
             </label>
             <div className="relative">
-              <Phone
-                size={19}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-              />
+              <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 id="phone"
                 type="tel"
                 placeholder="Enter your 10 digit phone number"
                 autoComplete="tel"
-                className={`
-                  w-full
-                  h-11
-                  rounded-xl
-                  border
-                  bg-white/90
-                  pl-11
-                  pr-4
-                  text-[15px]
-                  placeholder:text-gray-400
-                  outline-none
-                  focus:ring-4
-                  focus:ring-purple-200
-                  focus:border-purple-500
-                  transition
-                  ${errors.phone ? "border-red-400 focus:ring-red-100 focus:border-red-500" : "border-gray-200"}
-                `}
+                className={`w-full py-4 pl-10 pr-4 text-[15px] bg-white border ${
+                  errors.phone ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
+                } rounded-2xl outline-none focus:ring-4 transition-all text-slate-800 font-medium`}
                 {...register("phone", phoneRules)}
               />
             </div>
             {errors.phone && (
-              <p className="text-red-500 text-xs mt-1 pl-1">
-                {errors.phone.message}
-              </p>
+              <p className="text-[10px] text-red-500 font-bold mt-1 pl-1">{errors.phone.message}</p>
             )}
           </div>
 
           {/* Password */}
-          <div>
-            <label className="block mb-2 font-semibold text-[#1F2A44] text-[15px]">
+          <div className="flex flex-col">
+            <label htmlFor="password" className="text-xs font-bold text-slate-600 mb-1.5">
               Password
             </label>
             <div className="relative">
-              <Lock
-                size={19}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-              />
+              <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="create a strong password"
+                placeholder="Create a strong password"
                 autoComplete="new-password"
-                className={`
-                  w-full
-                  h-11
-                  rounded-xl
-                  border
-                  bg-white/90
-                  pl-11
-                  pr-10
-                  text-[15px]
-                  placeholder:text-gray-400
-                  outline-none
-                  focus:ring-4
-                  focus:ring-purple-200
-                  focus:border-purple-500
-                  transition
-                  ${errors.password ? "border-red-400 focus:ring-red-100 focus:border-red-500" : "border-gray-200"}
-                `}
+                className={`w-full py-4 pl-10 pr-10 text-[15px] bg-white border ${
+                  errors.password ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
+                } rounded-2xl outline-none focus:ring-4 transition-all text-slate-800 font-medium`}
                 {...register("password", passwordRules)}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
             </div>
             {errors.password && (
-              <p className="text-red-500 text-xs mt-1 pl-1">
-                {errors.password.message}
-              </p>
+              <p className="text-[10px] text-red-500 font-bold mt-1 pl-1">{errors.password.message}</p>
             )}
-            
+
             {passwordValue && (
-              <div className="mt-2 p-3 bg-white/50 rounded-xl border border-gray-100 text-[12px] space-y-2">
-                <p className="font-semibold text-slate-700">Password Requirements:</p>
+              <div className="mt-2 p-3 bg-white/50 rounded-2xl border border-slate-100 text-[12px] space-y-2">
+                <p className="font-bold text-slate-700">Password Requirements:</p>
                 <div className="grid grid-cols-2 gap-x-2 gap-y-1">
                   <div className="flex items-center gap-1.5">
-                    <span className={hasMinLength ? "text-emerald-500 font-bold" : "text-slate-300"}>
-                      {hasMinLength ? "✓" : "○"}
-                    </span>
-                    <span className={hasMinLength ? "text-emerald-700 font-medium" : "text-slate-400"}>
-                      Min 8 chars
-                    </span>
+                    <span className={hasMinLength ? "text-emerald-500 font-bold" : "text-slate-300"}>{hasMinLength ? "✓" : "○"}</span>
+                    <span className={hasMinLength ? "text-emerald-700 font-medium" : "text-slate-400"}>Min 8 chars</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className={hasUppercase ? "text-emerald-500 font-bold" : "text-slate-300"}>
-                      {hasUppercase ? "✓" : "○"}
-                    </span>
-                    <span className={hasUppercase ? "text-emerald-700 font-medium" : "text-slate-400"}>
-                      One uppercase
-                    </span>
+                    <span className={hasUppercase ? "text-emerald-500 font-bold" : "text-slate-300"}>{hasUppercase ? "✓" : "○"}</span>
+                    <span className={hasUppercase ? "text-emerald-700 font-medium" : "text-slate-400"}>One uppercase</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className={hasLowercase ? "text-emerald-500 font-bold" : "text-slate-300"}>
-                      {hasLowercase ? "✓" : "○"}
-                    </span>
-                    <span className={hasLowercase ? "text-emerald-700 font-medium" : "text-slate-400"}>
-                      One lowercase
-                    </span>
+                    <span className={hasLowercase ? "text-emerald-500 font-bold" : "text-slate-300"}>{hasLowercase ? "✓" : "○"}</span>
+                    <span className={hasLowercase ? "text-emerald-700 font-medium" : "text-slate-400"}>One lowercase</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className={hasNumber ? "text-emerald-500 font-bold" : "text-slate-300"}>
-                      {hasNumber ? "✓" : "○"}
-                    </span>
-                    <span className={hasNumber ? "text-emerald-700 font-medium" : "text-slate-400"}>
-                      One number
-                    </span>
+                    <span className={hasNumber ? "text-emerald-500 font-bold" : "text-slate-300"}>{hasNumber ? "✓" : "○"}</span>
+                    <span className={hasNumber ? "text-emerald-700 font-medium" : "text-slate-400"}>One number</span>
                   </div>
                 </div>
-
-                {/* Strength Meter Bar */}
-                <div className="mt-2 pt-1 border-t border-gray-100">
+                <div className="mt-2 pt-1 border-t border-slate-100">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-slate-500 font-medium">Strength:</span>
                     <span className={`font-semibold ${
                       strengthScore <= 1 ? "text-red-500" : strengthScore <= 3 ? "text-amber-500" : "text-emerald-600"
-                    }`}>
-                      {strengthScore <= 1 ? "Weak" : strengthScore <= 3 ? "Medium" : "Strong"}
-                    </span>
+                    }`}>{strengthScore <= 1 ? "Weak" : strengthScore <= 3 ? "Medium" : "Strong"}</span>
                   </div>
                   <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full transition-all duration-300 ${
-                        strengthScore <= 1 ? "bg-red-500 w-[25%]" : strengthScore === 2 ? "bg-amber-400 w-[50%]" : strengthScore === 3 ? "bg-amber-500 w-[75%]" : "bg-emerald-500 w-[100%]"
-                      }`}
-                    />
+                    <div className={`h-full transition-all duration-300 ${
+                      strengthScore <= 1 ? "bg-red-500 w-[25%]" : strengthScore === 2 ? "bg-amber-400 w-[50%]" : strengthScore === 3 ? "bg-amber-500 w-[75%]" : "bg-emerald-500 w-[100%]"
+                    }`} />
                   </div>
                 </div>
               </div>
@@ -339,108 +230,67 @@ export default function RegisterCard() {
           </div>
 
           {/* Confirm Password */}
-          <div>
-            <label className="block mb-2 font-semibold text-[#1F2A44] text-[15px]">
+          <div className="flex flex-col">
+            <label htmlFor="confirmPassword" className="text-xs font-bold text-slate-600 mb-1.5">
               Confirm Password
             </label>
             <div className="relative">
-              <Lock
-                size={19}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-              />
+              <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 id="confirmPassword"
                 type={showConfirm ? "text" : "password"}
-                placeholder="Confirm password"
+                placeholder="Confirm your password"
                 autoComplete="new-password"
-                className={`
-                  w-full
-                  h-11
-                  rounded-xl
-                  border
-                  bg-white/90
-                  pl-11
-                  pr-10
-                  text-[15px]
-                  placeholder:text-gray-400
-                  outline-none
-                  focus:ring-4
-                  focus:ring-purple-200
-                  focus:border-purple-500
-                  transition
-                  ${errors.confirmPassword ? "border-red-400 focus:ring-red-100 focus:border-red-500" : "border-gray-200"}
-                `}
+                className={`w-full py-4 pl-10 pr-10 text-[15px] bg-white border ${
+                  errors.confirmPassword ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
+                } rounded-2xl outline-none focus:ring-4 transition-all text-slate-800 font-medium`}
                 {...register("confirmPassword", {
                   required: "Please confirm your password",
-                  validate: (value) =>
-                    value === passwordValue || "Passwords do not match",
+                  validate: (value) => value === passwordValue || "Passwords do not match",
                 })}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm((prev) => !prev)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
               >
-                {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showConfirm ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
             </div>
             {errors.confirmPassword && (
-              <p className="text-red-500 text-xs mt-1 pl-1">
-                {errors.confirmPassword.message}
-              </p>
+              <p className="text-[10px] text-red-500 font-bold mt-1 pl-1">{errors.confirmPassword.message}</p>
             )}
           </div>
 
-          {/* Button */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="
-              w-full
-              h-11
-              rounded-xl
-              bg-gradient-to-r
-              from-violet-600
-              via-purple-600
-              to-fuchsia-600
-              text-white
-              text-[17px]
-              font-semibold
-              shadow-lg
-              hover:shadow-purple-300
-              hover:scale-[1.02]
-              transition-all
-              duration-300
-              flex
-              items-center
-              justify-center
-              gap-2
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-            "
+            style={{ background: "linear-gradient(135deg,#6D28D9,#9333EA,#7C3AED)" }}
+            className="w-full py-3.5 disabled:opacity-50 text-white font-extrabold rounded-2xl shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer flex items-center justify-center gap-2 text-[15px] select-none mt-2"
           >
             {isSubmitting ? (
               <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Creating Account...
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Creating Account…</span>
               </>
             ) : (
-              <>
-                Create Account
-                <ArrowRight size={18} />
-              </>
+              <span>Create Account</span>
             )}
           </button>
         </form>
 
-        {/* Back to Home Link */}
-        <div className="text-center mt-4">
-          <Link
-            to="/"
-            className="text-sm font-semibold text-slate-500 hover:text-purple-700 transition"
-          >
-            ← Back to Home
-          </Link>
+        {/* Already have an account */}
+        <div className="text-center select-none">
+          <span className="text-xs font-bold text-slate-500">
+            Already have an account?{' '}
+            <Link
+              to="/login"
+              className="font-extrabold text-[#7C3AED] hover:text-[#6D28D9] transition-colors"
+            >
+              Login Now
+            </Link>
+          </span>
         </div>
       </div>
     </div>
