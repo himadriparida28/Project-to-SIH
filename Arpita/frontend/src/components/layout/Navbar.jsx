@@ -193,7 +193,7 @@ export default function Navbar() {
             ) : (
               /* Guest buttons */
               <div className="hidden md:flex items-center gap-2">
-                <Link to="/login" className="btn btn-ghost text-amber-200/70 hover:text-white hover:bg-white/5">
+                <Link to="/login" className="btn bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold rounded-xl shadow-md hover:scale-[1.02] transition-all">
                   Login
                 </Link>
                 <Link to="/register" className="btn bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold rounded-xl shadow-md hover:scale-[1.02] transition-all">
